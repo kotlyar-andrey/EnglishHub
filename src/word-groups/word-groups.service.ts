@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { DeleteResult, Model } from 'mongoose';
 
 import {
     ConflictException, Injectable, InternalServerErrorException, NotFoundException
@@ -15,11 +15,11 @@ export class WordGroupsService {
     private readonly wordGroupsModel: Model<WordGroupDocument>,
   ) {}
 
-  findAll() {
+  findAll(): Promise<WordGroupDocument[]> {
     return this.wordGroupsModel.find().exec();
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<WordGroup> {
     const wordGroup = await this.wordGroupsModel.findById(id).exec();
     if (!wordGroup) {
       throw new NotFoundException();
@@ -27,7 +27,7 @@ export class WordGroupsService {
     return wordGroup;
   }
 
-  async create(createGroupDto: CreateWordGroupDto) {
+  async create(createGroupDto: CreateWordGroupDto): Promise<WordGroup> {
     const wordGroup = new this.wordGroupsModel(createGroupDto);
     try {
       return await wordGroup.save();
@@ -41,7 +41,10 @@ export class WordGroupsService {
     }
   }
 
-  async update(id: string, updateWordGroupDto: UpdateWordGroupDto) {
+  async update(
+    id: string,
+    updateWordGroupDto: UpdateWordGroupDto,
+  ): Promise<WordGroup> {
     const wordGroup = await this.wordGroupsModel
       .findOneAndUpdate(
         { _id: id },

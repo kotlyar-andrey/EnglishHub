@@ -12,7 +12,7 @@ class Translation {
 }
 
 @Schema()
-export class Word {
+export class Word extends Document {
   @Prop({ required: true, unique: true })
   text: string;
 

@@ -16,11 +16,11 @@ export class WordsService {
     @InjectModel(Word.name) private readonly wordModel: Model<WordDocument>,
   ) {}
 
-  findAll() {
+  findAll(): Promise<WordDocument[]> {
     return this.wordModel.find().exec();
   }
 
-  async findOne({ id, text }: GetWordDto) {
+  async findOne({ id, text }: GetWordDto): Promise<WordDocument> {
     const word = id
       ? await this.wordModel.findById(id).exec()
       : await this.wordModel.findOne({ text: text }).exec();
@@ -31,7 +31,7 @@ export class WordsService {
     return word;
   }
 
-  async create(createWordDto: CreateWordDto) {
+  async create(createWordDto: CreateWordDto): Promise<WordDocument> {
     const newWord = new this.wordModel(createWordDto);
     try {
       return newWord.save();
@@ -45,7 +45,10 @@ export class WordsService {
     }
   }
 
-  async update(id: string, updateWordDto: UpdateWordDto) {
+  async update(
+    id: string,
+    updateWordDto: UpdateWordDto,
+  ): Promise<WordDocument> {
     const word = await this.wordModel
       .findByIdAndUpdate({ _id: id }, { $set: updateWordDto }, { new: true })
       .exec();

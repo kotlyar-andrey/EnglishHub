@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 @Schema()
-export class WordGroup {
+export class WordGroup extends Document {
   @Prop()
   name: string;
 
