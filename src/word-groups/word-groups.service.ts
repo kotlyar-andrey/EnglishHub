@@ -59,7 +59,7 @@ export class WordGroupsService {
   }
 
   async delete(id: string) {
-    const wordGroup = await this.wordGroupsModel.findById(id).exec();
+    const wordGroup = await this.wordGroupsModel.findById(id).lean().exec();
     return wordGroup?.deleteOne();
   }
 }
