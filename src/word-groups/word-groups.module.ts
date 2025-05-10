@@ -1,5 +1,3 @@
-import { WordsModule } from 'src/words/words.module';
-
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
@@ -13,6 +11,6 @@ import { WordGroupsService } from './word-groups.service';
     ]),
   ],
   providers: [WordGroupsService],
-  exports: [MongooseModule],
+  exports: [WordGroupsService],
 })
 export class WordGroupsModule {}

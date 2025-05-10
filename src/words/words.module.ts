@@ -9,6 +9,6 @@ import { WordsService } from './words.service';
     MongooseModule.forFeature([{ name: Word.name, schema: WordSchema }]),
   ],
   providers: [WordsService],
-  exports: [MongooseModule],
+  exports: [WordsService],
 })
 export class WordsModule {}

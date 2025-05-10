@@ -16,7 +16,7 @@ export class CreateWordDto {
   group: string;
 
   @IsString()
-  english: string;
+  text: string;
 
   @IsString()
   transcription: string;

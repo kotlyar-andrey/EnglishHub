@@ -16,11 +16,11 @@ export class WordGroupsService {
   ) {}
 
   findAll(): Promise<WordGroupDocument[]> {
-    return this.wordGroupsModel.find().exec();
+    return this.wordGroupsModel.find().lean().exec();
   }
 
   async findOne(id: string): Promise<WordGroup> {
-    const wordGroup = await this.wordGroupsModel.findById(id).exec();
+    const wordGroup = await this.wordGroupsModel.findById(id).lean().exec();
     if (!wordGroup) {
       throw new NotFoundException();
     }

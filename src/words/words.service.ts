@@ -17,13 +17,17 @@ export class WordsService {
   ) {}
 
   findAll(): Promise<WordDocument[]> {
-    return this.wordModel.find().exec();
+    return this.wordModel.find().lean().exec();
+  }
+
+  findManyByGroupId(groupId: string) {
+    return this.wordModel.find({ group: groupId }).lean().exec();
   }
 
   async findOne({ id, text }: GetWordDto): Promise<WordDocument> {
     const word = id
-      ? await this.wordModel.findById(id).exec()
-      : await this.wordModel.findOne({ text: text }).exec();
+      ? await this.wordModel.findById(id).lean().exec()
+      : await this.wordModel.findOne({ text: text }).lean().exec();
 
     if (!word) {
       throw new NotFoundException();
@@ -38,7 +42,7 @@ export class WordsService {
     } catch (err) {
       if (err.code === 11000) {
         throw new ConflictException(
-          `Group with the main word '${createWordDto.english}' already exists`,
+          `Group with the main word '${createWordDto.text}' already exists`,
         );
       }
       throw new InternalServerErrorException('Error saving group');
@@ -58,7 +62,11 @@ export class WordsService {
     return word;
   }
 
-  delete(id: string) {
+  deleteOne(id: string) {
     return this.wordModel.findByIdAndDelete(id).exec();
+  }
+
+  async deleteManyByGroupId(groupId: string) {
+    return this.wordModel.deleteMany({ group: groupId }).exec();
   }
 }
