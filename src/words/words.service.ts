@@ -42,7 +42,7 @@ export class WordsService {
     } catch (err) {
       if (err.code === 11000) {
         throw new ConflictException(
-          `Group with the main word '${createWordDto.text}' already exists`,
+          `Word '${createWordDto.text}' already exists`,
         );
       }
       throw new InternalServerErrorException('Error saving group');
