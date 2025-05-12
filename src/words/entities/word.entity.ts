@@ -1,4 +1,4 @@
-import { Document, Types } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
@@ -12,7 +12,7 @@ class Translation {
 }
 
 @Schema()
-export class Word extends Document {
+export class Word {
   @Prop({ required: true, unique: true })
   text: string;
 
@@ -33,4 +33,4 @@ export class Word extends Document {
 }
 
 export const WordSchema = SchemaFactory.createForClass(Word);
-export type WordDocument = Word & Document;
+export type WordDocument = HydratedDocument<Word>;

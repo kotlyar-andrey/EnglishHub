@@ -1,9 +1,9 @@
-import { Document } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 @Schema()
-export class WordGroup extends Document {
+export class WordGroup {
   @Prop()
   name: string;
 
@@ -21,4 +21,4 @@ export class WordGroup extends Document {
 }
 
 export const WordGroupSchema = SchemaFactory.createForClass(WordGroup);
-export type WordGroupDocument = WordGroup & Document;
+export type WordGroupDocument = HydratedDocument<WordGroup>;
