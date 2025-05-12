@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { HydratedDocument, Model } from 'mongoose';
 
 import {
     ConflictException, Injectable, InternalServerErrorException, NotFoundException
@@ -53,9 +53,19 @@ export class WordsService {
     id: string,
     updateWordDto: UpdateWordDto,
   ): Promise<WordDocument> {
-    const word = await this.wordModel
-      .findByIdAndUpdate({ _id: id }, { $set: updateWordDto }, { new: true })
-      .exec();
+    let word: HydratedDocument<WordDocument> | null;
+    try {
+      word = await this.wordModel
+        .findByIdAndUpdate({ _id: id }, { $set: updateWordDto }, { new: true })
+        .exec();
+    } catch (err) {
+      if (err.code === 11000) {
+        throw new ConflictException(
+          `Word '${updateWordDto.text}' already exists`,
+        );
+      }
+      throw err;
+    }
     if (!word) {
       throw new NotFoundException();
     }
