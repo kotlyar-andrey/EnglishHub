@@ -302,6 +302,26 @@ describe('WordsService', () => {
         );
         expect(execMock.exec).toHaveBeenCalledTimes(1);
       });
+
+      it('should throw ConflictException', async () => {
+        execMock.exec.mockRejectedValue(
+          new ConflictException(`Word '${updateDto.text}' already exists`),
+        );
+
+        const result = service.update(wordId, updateDto);
+        await expect(result).rejects.toThrow(ConflictException);
+        await expect(result).rejects.toThrow(
+          `Word '${updateDto.text}' already exists`,
+        );
+
+        expect(mockWordsModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
+        expect(mockWordsModel.findByIdAndUpdate).toHaveBeenCalledWith(
+          { _id: wordId },
+          { $set: updateDto },
+          { new: true },
+        );
+        expect(execMock.exec).toHaveBeenCalledTimes(1);
+      });
     });
 
     describe('delete(id)', () => {

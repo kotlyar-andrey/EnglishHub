@@ -38,7 +38,7 @@ export class WordsService {
   async create(createWordDto: CreateWordDto): Promise<WordDocument> {
     const newWord = new this.wordModel(createWordDto);
     try {
-      return newWord.save();
+      return await newWord.save();
     } catch (err) {
       if (err.code === 11000) {
         throw new ConflictException(
