@@ -243,6 +243,28 @@ describe('WordGroupsService', () => {
       expect(execMock.exec).toHaveBeenCalledTimes(1);
     });
 
+    it('should throw ConflictException if group with same mainWord have already exists', async () => {
+      execMock.exec.mockRejectedValue(
+        new ConflictException(
+          `Group with the main word '${updateDto.mainWord}' already exists`,
+        ),
+      );
+
+      const result = service.update(groupId, updateDto);
+
+      await expect(result).rejects.toThrow(ConflictException);
+      await expect(result).rejects.toThrow(
+        `Group with the main word '${updateDto.mainWord}' already exists`,
+      );
+      expect(execMock.exec).toHaveBeenCalledTimes(1);
+      expect(mockWordGroupsModel.findOneAndUpdate).toHaveBeenCalledTimes(1);
+      expect(mockWordGroupsModel.findOneAndUpdate).toHaveBeenCalledWith(
+        { _id: groupId },
+        { $set: updateDto },
+        { new: true },
+      );
+    });
+
     it('should throw an error if connection rejects', async () => {
       const testError = new Error('Update failed');
       execMock.exec.mockRejectedValue(testError);

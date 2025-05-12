@@ -45,6 +45,16 @@ export class WordGroupsService {
     id: string,
     updateWordGroupDto: UpdateWordGroupDto,
   ): Promise<WordGroup> {
+    if (updateWordGroupDto.mainWord) {
+      const existedGroup = await this.wordGroupsModel.findOne({
+        mainWord: updateWordGroupDto.mainWord,
+      });
+      if (existedGroup) {
+        throw new ConflictException(
+          `Group with the main word '${updateWordGroupDto.mainWord}' already exists`,
+        );
+      }
+    }
     const wordGroup = await this.wordGroupsModel
       .findOneAndUpdate(
         { _id: id },
