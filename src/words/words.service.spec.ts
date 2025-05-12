@@ -235,9 +235,7 @@ describe('WordsService', () => {
       );
       (error as any).code = 11000;
 
-      saveMock.mockRejectedValue(
-        new ConflictException(`Word '${createDto.text}' already exists`),
-      );
+      saveMock.mockRejectedValue(error);
 
       const result = service.create(createDto);
 
@@ -263,111 +261,110 @@ describe('WordsService', () => {
       expect(mockWordsModel).toHaveBeenCalledWith(createDto);
       expect(mockWordsModelInstance.save).toHaveBeenCalledTimes(1);
     });
+  });
+  describe('update(id, updateDto)', () => {
+    const wordId = 'test-word-id';
+    const updateDto: UpdateWordDto = { transcription: 'new-value' };
 
-    describe('update(id, updateDto)', () => {
-      const wordId = 'test-word-id';
-      const updateDto: UpdateWordDto = { transcription: 'new-value' };
-
-      it('should update a word', async () => {
-        const updatedWord = Object.assign(mockWordsModelInstance, {
-          ...updateDto,
-          _id: wordId,
-        });
-
-        execMock.exec.mockResolvedValue(updatedWord);
-
-        const result = await service.update(wordId, updateDto);
-
-        expect(result).toEqual(updatedWord);
-        expect(mockWordsModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
-        expect(mockWordsModel.findByIdAndUpdate).toHaveBeenCalledWith(
-          { _id: wordId },
-          { $set: updateDto },
-          { new: true },
-        );
+    it('should update a word', async () => {
+      const updatedWord = Object.assign(mockWordsModelInstance, {
+        ...updateDto,
+        _id: wordId,
       });
 
-      it('should throw NotFoundException', async () => {
-        execMock.exec.mockRejectedValue(new NotFoundException());
+      execMock.exec.mockResolvedValue(updatedWord);
 
-        await expect(service.update(wordId, updateDto)).rejects.toThrow(
-          NotFoundException,
-        );
+      const result = await service.update(wordId, updateDto);
 
-        expect(mockWordsModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
-        expect(mockWordsModel.findByIdAndUpdate).toHaveBeenCalledWith(
-          { _id: wordId },
-          { $set: updateDto },
-          { new: true },
-        );
-        expect(execMock.exec).toHaveBeenCalledTimes(1);
-      });
-
-      it('should throw ConflictException', async () => {
-        execMock.exec.mockRejectedValue(
-          new ConflictException(`Word '${updateDto.text}' already exists`),
-        );
-
-        const result = service.update(wordId, updateDto);
-        await expect(result).rejects.toThrow(ConflictException);
-        await expect(result).rejects.toThrow(
-          `Word '${updateDto.text}' already exists`,
-        );
-
-        expect(mockWordsModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
-        expect(mockWordsModel.findByIdAndUpdate).toHaveBeenCalledWith(
-          { _id: wordId },
-          { $set: updateDto },
-          { new: true },
-        );
-        expect(execMock.exec).toHaveBeenCalledTimes(1);
-      });
+      expect(result).toEqual(updatedWord);
+      expect(mockWordsModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
+      expect(mockWordsModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        { _id: wordId },
+        { $set: updateDto },
+        { new: true },
+      );
     });
 
-    describe('delete(id)', () => {
-      const wordId = 'test-word-id';
+    it('should throw NotFoundException', async () => {
+      execMock.exec.mockRejectedValue(new NotFoundException());
 
-      it('should delete word', async () => {
-        const mockDeleteResult = { deletedCount: 1 } as DeleteResult;
-        execMock.exec.mockResolvedValue(mockDeleteResult);
+      await expect(service.update(wordId, updateDto)).rejects.toThrow(
+        NotFoundException,
+      );
 
-        const result = await service.deleteOne(wordId);
-
-        expect(result).toEqual(mockDeleteResult);
-
-        expect(execMock.exec).toHaveBeenCalledTimes(1);
-        expect(mockWordsModel.findByIdAndDelete).toHaveBeenCalledTimes(1);
-        expect(mockWordsModel.findByIdAndDelete).toHaveBeenCalledWith(wordId);
-      });
-
-      it('should throw NotFoundException', async () => {
-        execMock.exec.mockRejectedValue(new NotFoundException());
-
-        await expect(service.deleteOne(wordId)).rejects.toThrow(
-          NotFoundException,
-        );
-        expect(execMock.exec).toHaveBeenCalledTimes(1);
-        expect(mockWordsModel.findByIdAndDelete).toHaveBeenCalledTimes(1);
-        expect(mockWordsModel.findByIdAndDelete).toHaveBeenCalledWith(wordId);
-      });
+      expect(mockWordsModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
+      expect(mockWordsModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        { _id: wordId },
+        { $set: updateDto },
+        { new: true },
+      );
+      expect(execMock.exec).toHaveBeenCalledTimes(1);
     });
 
-    describe('deleteManyByGroupId(groupId)', () => {
-      const groupId = 'test-group-id';
+    it('should throw ConflictException', async () => {
+      execMock.exec.mockRejectedValue(
+        new ConflictException(`Word '${updateDto.text}' already exists`),
+      );
 
-      it('should delete all words with groupId', async () => {
-        const mockDeleteResult = { deletedCount: 3 } as DeleteResult;
-        execMock.exec.mockResolvedValue(mockDeleteResult);
+      const result = service.update(wordId, updateDto);
+      await expect(result).rejects.toThrow(ConflictException);
+      await expect(result).rejects.toThrow(
+        `Word '${updateDto.text}' already exists`,
+      );
 
-        const result = await service.deleteManyByGroupId(groupId);
+      expect(mockWordsModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
+      expect(mockWordsModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        { _id: wordId },
+        { $set: updateDto },
+        { new: true },
+      );
+      expect(execMock.exec).toHaveBeenCalledTimes(1);
+    });
+  });
 
-        expect(result).toEqual(mockDeleteResult);
+  describe('delete(id)', () => {
+    const wordId = 'test-word-id';
 
-        expect(execMock.exec).toHaveBeenCalledTimes(1);
-        expect(mockWordsModel.deleteMany).toHaveBeenCalledTimes(1);
-        expect(mockWordsModel.deleteMany).toHaveBeenCalledWith({
-          group: groupId,
-        });
+    it('should delete word', async () => {
+      const mockDeleteResult = { deletedCount: 1 } as DeleteResult;
+      execMock.exec.mockResolvedValue(mockDeleteResult);
+
+      const result = await service.deleteOne(wordId);
+
+      expect(result).toEqual(mockDeleteResult);
+
+      expect(execMock.exec).toHaveBeenCalledTimes(1);
+      expect(mockWordsModel.findByIdAndDelete).toHaveBeenCalledTimes(1);
+      expect(mockWordsModel.findByIdAndDelete).toHaveBeenCalledWith(wordId);
+    });
+
+    it('should throw NotFoundException', async () => {
+      execMock.exec.mockRejectedValue(new NotFoundException());
+
+      await expect(service.deleteOne(wordId)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(execMock.exec).toHaveBeenCalledTimes(1);
+      expect(mockWordsModel.findByIdAndDelete).toHaveBeenCalledTimes(1);
+      expect(mockWordsModel.findByIdAndDelete).toHaveBeenCalledWith(wordId);
+    });
+  });
+
+  describe('deleteManyByGroupId(groupId)', () => {
+    const groupId = 'test-group-id';
+
+    it('should delete all words with groupId', async () => {
+      const mockDeleteResult = { deletedCount: 3 } as DeleteResult;
+      execMock.exec.mockResolvedValue(mockDeleteResult);
+
+      const result = await service.deleteManyByGroupId(groupId);
+
+      expect(result).toEqual(mockDeleteResult);
+
+      expect(execMock.exec).toHaveBeenCalledTimes(1);
+      expect(mockWordsModel.deleteMany).toHaveBeenCalledTimes(1);
+      expect(mockWordsModel.deleteMany).toHaveBeenCalledWith({
+        group: groupId,
       });
     });
   });
