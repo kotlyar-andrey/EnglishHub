@@ -81,7 +81,7 @@ describe('WordGroupsService', () => {
       const mockWordGroups = [
         { _id: 'id1', name: 'Group 1' },
         { _id: 'id2', name: 'Group 2' },
-      ] as WordGroupDocument[];
+      ];
       execMock.exec.mockResolvedValue(mockWordGroups);
 
       const result = await service.findAll();
@@ -121,11 +121,11 @@ describe('WordGroupsService', () => {
   describe('findOne(id)', () => {
     it('should return one existing group', async () => {
       const groupId = 'mockGroupId';
-      const mockFoundGroup = {
+      const mockFoundGroup = Object.assign(mockWordGroupInstance, {
         _id: groupId,
         name: 'test group',
         mainWord: 'test',
-      } as WordGroupDocument;
+      });
 
       execMock.exec.mockResolvedValue(mockFoundGroup);
 
@@ -158,7 +158,10 @@ describe('WordGroupsService', () => {
     };
 
     it('should be created', async () => {
-      const savedGroup = { _id: 'mock-id', ...createDto } as WordGroupDocument;
+      const savedGroup = Object.assign(mockWordGroupInstance, {
+        _id: 'mock-id',
+        ...createDto,
+      });
       mockSave.mockResolvedValue(savedGroup);
 
       const result = await service.create(createDto);
@@ -207,11 +210,11 @@ describe('WordGroupsService', () => {
     const updateDto: UpdateWordGroupDto = { name: 'Updated Name' };
 
     it('should update a word group', async () => {
-      const mockUpdatedGroup = {
+      const mockUpdatedGroup = Object.assign(mockWordGroupInstance, {
         _id: groupId,
         ...updateDto,
         mainWord: 'test word',
-      } as WordGroupDocument;
+      });
       execMock.exec.mockResolvedValue(mockUpdatedGroup);
 
       const result = await service.update(groupId, updateDto);
