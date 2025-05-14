@@ -1,10 +1,16 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { MongooseModule } from '@nestjs/mongoose';
+
+import { DictionaryModule } from './dictionary/dictionary.module';
+import { WordGroupsModule } from './word-groups/word-groups.module';
+import { WordsModule } from './words/words.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    MongooseModule.forRoot('mongodb://localhost:27017/word-groups'),
+    WordsModule,
+    WordGroupsModule,
+    DictionaryModule,
+  ],
 })
 export class AppModule {}
