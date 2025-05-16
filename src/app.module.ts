@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { DictionaryModule } from './dictionary/dictionary.module';
 import { WordGroupsModule } from './word-groups/word-groups.module';
 import { WordsModule } from './words/words.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { WordsModule } from './words/words.module';
     WordsModule,
     WordGroupsModule,
     DictionaryModule,
+    UsersModule,
   ],
 })
 export class AppModule {}
