@@ -1,4 +1,4 @@
-import { DeleteResult, Model } from 'mongoose';
+import { Model } from 'mongoose';
 
 import {
     ConflictException, Injectable, InternalServerErrorException, NotFoundException
