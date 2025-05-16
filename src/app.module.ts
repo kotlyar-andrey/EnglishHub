@@ -5,6 +5,7 @@ import { DictionaryModule } from './dictionary/dictionary.module';
 import { WordGroupsModule } from './word-groups/word-groups.module';
 import { WordsModule } from './words/words.module';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { UsersModule } from './users/users.module';
     WordGroupsModule,
     DictionaryModule,
     UsersModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
