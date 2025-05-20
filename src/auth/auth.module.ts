@@ -9,7 +9,8 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { RefreshToken, RefreshTokenSchema } from './entities/refresh-token.entity';
-import { LocalStrategy } from './local.strategy';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { LocalStrategy } from './strategies/local.strategy';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { LocalStrategy } from './local.strategy';
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>("JWT_SECRET"),
-        signOptions: { expiresIn: '60s' },
+        signOptions: { expiresIn: configService.get<string>("JWT_EXPIRES") },
       }),
       inject: [ConfigService],
     }),
@@ -27,6 +28,6 @@ import { LocalStrategy } from './local.strategy';
     ]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy],
+  providers: [AuthService, LocalStrategy, JwtStrategy],
 })
 export class AuthModule {}
