@@ -1,4 +1,4 @@
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
@@ -16,6 +16,10 @@ export enum UserStatus {
 
 @Schema({ timestamps: true })
 export class User {
+  _id?: Types.ObjectId;
+  createdAt?: Date;
+  updatedAt?: Date;
+
   @Prop({ unique: true, required: true })
   email: string;
 
