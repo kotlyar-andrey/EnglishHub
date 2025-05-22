@@ -1,4 +1,5 @@
-import { HydratedDocument, Model } from 'mongoose';
+import * as bcrypt from 'bcrypt';
+import { Model } from 'mongoose';
 
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -12,34 +13,28 @@ export class UsersService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
-  async findOneById(id: string): Promise<User> {
-    const user = await this.userModel.findById(id).lean().exec();
-    if (!user) {
-      throw new NotFoundException(`User with id '${id}' not found`);
-    }
-    return user;
+  findOneById(id: string): Promise<User | null> {
+    return this.userModel.findById(id).lean().exec();
   }
 
-  async findOneByEmail(email: string): Promise<User> {
-    const user = await this.userModel.findOne({ email }).lean().exec();
-    if (!user) {
-      throw new NotFoundException(`User with email '${email}' not found`);
-    }
-    return user;
+  findOneByEmail(email: string): Promise<User | null> {
+    return this.userModel.findOne({ email }).lean().exec();
   }
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    const user = new this.userModel(createUserDto);
-    try {
-      return (await user.save()).toObject();
-    } catch (err) {
-      if (err.code === 11000) {
-        throw new ConflictException(
-          `User with email '${createUserDto.email} already exists`,
-        );
-      }
-      throw err;
+  async createByEmailAndPassword(createUserDto: CreateUserDto): Promise<User> {
+    const existingUser = await this.findOneByEmail(createUserDto.email);
+    if (existingUser) {
+      throw new ConflictException('User with this email already exists');
     }
+
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
+    const newUser = new this.userModel({
+      email: createUserDto.email,
+      password: hashedPassword,
+    });
+    const savedUser = await newUser.save();
+    return savedUser.toObject();
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
