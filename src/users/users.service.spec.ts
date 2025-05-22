@@ -1,4 +1,5 @@
-import { exec } from 'child_process';
+// Импортируем мокнутый bcrypt для доступа к его методам, чтобы проверить вызовы
+import * as bcrypt from 'bcrypt';
 
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
@@ -8,8 +9,14 @@ import { CreateUserDto, UpdateUserDto } from './dto/create-user.dto';
 import { User, UserStatus } from './entities/user.entity';
 import { UsersService } from './users.service';
 
+jest.mock('bcrypt', () => ({
+  hash: jest.fn((password, saltRounds) => 'hashed-password'),
+}));
+
 describe('UsersService', () => {
   let service: UsersService;
+
+  const toObjectMock = jest.fn();
 
   const saveMock = jest.fn();
 
@@ -24,6 +31,7 @@ describe('UsersService', () => {
   const mockUserInstance = {
     _id: 'test-user-id',
     email: 'test@test.com',
+    password: 'hashed-password',
     save: saveMock,
   };
 
@@ -106,28 +114,38 @@ describe('UsersService', () => {
     const userEmail = 'create@test.com';
     const createDto: CreateUserDto = {
       email: userEmail,
-      password: '',
+      password: 'test-password',
     };
-    const createdUser = Object.assign(mockUserInstance, createDto);
+
+    toObjectMock.mockReturnValue(mockUserInstance);
 
     it('should create a new user', async () => {
-      saveMock.mockResolvedValue(createdUser);
+      saveMock.mockResolvedValue({
+        ...mockUserInstance,
+        toObject: toObjectMock,
+      });
 
-      const result = await service.create(createDto);
-      expect(result).toEqual(createdUser);
+      const result = await service.createByEmailAndPassword(createDto);
+      expect(result).toEqual(mockUserInstance);
       expect(mockUserModel).toHaveBeenCalledTimes(1);
-      expect(mockUserModel).toHaveBeenCalledWith(createDto);
+      expect(mockUserModel).toHaveBeenCalledWith({
+        ...createDto,
+        password: 'hashed-password',
+      });
       expect(mockUserInstance.save).toHaveBeenCalledTimes(1);
     });
 
     it('should throw ConflictException', async () => {
       saveMock.mockRejectedValue(new ConflictException());
 
-      await expect(service.create(createDto)).rejects.toThrow(
+      await expect(service.createByEmailAndPassword(createDto)).rejects.toThrow(
         ConflictException,
       );
       expect(mockUserModel).toHaveBeenCalledTimes(1);
-      expect(mockUserModel).toHaveBeenCalledWith(createDto);
+      expect(mockUserModel).toHaveBeenCalledWith({
+        ...createDto,
+        password: 'hashed-password',
+      });
     });
   });
 
