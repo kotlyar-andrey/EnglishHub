@@ -1,6 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { Model } from 'mongoose';
+import { daysToMilliseconds } from 'src/common/utils/calculations';
 import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 
@@ -58,9 +59,10 @@ export class AuthService {
   async __createRefreshToken(user: User) {
     const token = crypto.randomBytes(64).toString('hex');
     const expiresAt = new Date(
-      this.__calcExpiresTime(
-        this.configService.get<number>('JWT_REFRESH_EXPIRES') || 10,
-      ),
+      Date() +
+        daysToMilliseconds(
+          this.configService.get<number>('JWT_REFRESH_EXPIRES') || 10,
+        ),
     );
     const refreshToken = new this.refreshTokenModel({
       user: user._id,
@@ -69,9 +71,5 @@ export class AuthService {
     });
     const savedRefreshToken = await refreshToken.save();
     return savedRefreshToken.token;
-  }
-
-  __calcExpiresTime(days: number): number {
-    return Date.now() + days * 1000 * 3600 * 24;
   }
 }
