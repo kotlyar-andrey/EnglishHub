@@ -1,13 +1,12 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { daysToMilliseconds } from 'src/common/utils/calculations';
 
-import { Body, Controller, Get, Post, Request, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -36,6 +35,25 @@ export class AuthController {
   ) {
     const { access, refresh } =
       await this.authService.loginByEmailAndPassword(loginDto);
+
+    this.__setCookie('refresh', refresh, response);
+
+    return { access };
+  }
+
+  @Post('refresh')
+  async refreshTokens(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const prevRefreshToken: string = request.cookies['refresh'];
+    if (!prevRefreshToken) {
+      throw new UnauthorizedException('Refresh token is required');
+    }
+
+    const { access, refresh } = await this.authService.refreshTokens({
+      refreshToken: prevRefreshToken,
+    });
 
     this.__setCookie('refresh', refresh, response);
 

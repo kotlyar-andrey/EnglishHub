@@ -44,10 +44,21 @@ describe('AuthService', () => {
     expiresAt: new Date(),
   };
   const saveMock = jest.fn().mockResolvedValue(mockRefreshInstance);
+  const execMock = jest.fn();
   const mockRefreshToken = jest.fn(() => ({
     ...mockRefreshInstance,
     save: saveMock,
-  }));
+  })) as any;
+  mockRefreshToken.findOne = jest.fn().mockReturnValue({
+    populate: jest.fn().mockReturnValue({
+      lean: jest.fn().mockReturnValue({
+        exec: execMock,
+      }),
+    }),
+  });
+  mockRefreshToken.findOneAndDelete = jest.fn().mockReturnValue({
+    exec: jest.fn().mockResolvedValue({ deleteCount: 1 }),
+  });
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -67,6 +78,10 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   describe('registrationByEmailAndPassword(dto)', () => {
@@ -141,6 +156,37 @@ describe('AuthService', () => {
       await expect(service.loginByEmailAndPassword(loginDto)).rejects.toThrow(
         UnauthorizedException,
       );
+    });
+  });
+
+  describe('refreshTokens(dto)', () => {
+    const prevRefreshToken = 'test-refresh-token';
+
+    it('should return new tokens', async () => {
+      execMock.mockResolvedValue({
+        token: 'token',
+        user: { email: 'test@test.com' },
+      });
+      const result = await service.refreshTokens({
+        refreshToken: prevRefreshToken,
+      });
+
+      expect(result).toEqual({
+        access: 'jwt-string',
+        refresh: 'random-string',
+      });
+      expect(mockRefreshToken.findOne).toHaveBeenCalledTimes(1);
+      expect(mockRefreshToken.findOne).toHaveBeenCalledWith({
+        token: prevRefreshToken,
+      });
+    });
+
+    it('should throw UnauthorizedException', async () => {
+      execMock.mockRejectedValue(new UnauthorizedException());
+
+      await expect(
+        service.refreshTokens({ refreshToken: prevRefreshToken }),
+      ).rejects.toThrow(UnauthorizedException);
     });
   });
 });
