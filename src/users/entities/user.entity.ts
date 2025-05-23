@@ -31,6 +31,10 @@ export class User {
 
   @Prop({ required: true, enum: UserStatus, default: UserStatus.ACTIVE })
   status: UserStatus;
+
+  isAdmin(): boolean {
+    return this.role === UserRole.ADMIN;
+  }
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
