@@ -1,3 +1,5 @@
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { UserRole } from 'src/common/enums/user-roles.enum';
 import { CreateWordGroupDto, UpdateWordGroupDto } from 'src/word-groups/dto/create-word-group.dto';
 import { GetWordGroupDto } from 'src/word-groups/dto/get-word-group.dto';
 import { CreateWordDto } from 'src/words/dto/create-word.dto';
@@ -25,6 +27,7 @@ export class DictionaryController {
   }
 
   @Post('word-groups')
+  @Roles(UserRole.ADMIN)
   createWordGroup(@Body() createWordGroupDto: CreateWordGroupDto) {
     return this.dictionaryService.createWordGroup(createWordGroupDto);
   }
