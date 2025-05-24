@@ -14,11 +14,15 @@ export class UsersService {
   ) {}
 
   findOneById(id: string): Promise<User | null> {
-    return this.userModel.findById(id).lean().exec();
+    return this.userModel.findById(id).select('-password -__v').lean().exec();
   }
 
   findOneByEmail(email: string): Promise<User | null> {
-    return this.userModel.findOne({ email }).lean().exec();
+    return this.userModel
+      .findOne({ email })
+      .select('-password -__v')
+      .lean()
+      .exec();
   }
 
   async createByEmailAndPassword(createUserDto: CreateUserDto): Promise<User> {
@@ -40,6 +44,7 @@ export class UsersService {
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.userModel
       .findByIdAndUpdate(id, { $set: updateUserDto }, { new: true })
+      .select('-password -__v')
       .lean()
       .exec();
     if (!user) {
@@ -57,6 +62,7 @@ export class UsersService {
         },
         { new: true },
       )
+      .select('-password -__v')
       .lean()
       .exec();
     if (!user) {

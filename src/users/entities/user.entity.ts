@@ -1,12 +1,7 @@
 import { HydratedDocument, Types } from 'mongoose';
+import { UserRole } from 'src/common/enums/user-roles.enum';
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-
-export enum UserRole {
-  ADMIN = 'admin',
-  AUTHOR = 'author',
-  MEMBER = 'member',
-}
 
 export enum UserStatus {
   ACTIVE = 'active',
@@ -39,3 +34,11 @@ export class User {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 export type UserDocument = HydratedDocument<User>;
+
+UserSchema.set('toJSON', {
+  transform: (doc, ret, options) => {
+    delete ret.password;
+    delete ret.__v;
+    return ret;
+  },
+});
