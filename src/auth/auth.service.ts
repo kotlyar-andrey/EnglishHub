@@ -36,9 +36,8 @@ export class AuthService {
   }
 
   async loginByEmailAndPassword(loginDto: LoginDto) {
-    const user: User | null = await this.usersService.findOneByEmail(
-      loginDto.email,
-    );
+    const user: User | null =
+      await this.usersService.findOneByEmailWithPassword(loginDto.email);
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
     }

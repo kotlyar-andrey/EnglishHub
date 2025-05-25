@@ -28,6 +28,10 @@ describe('UsersService', () => {
     lean: jest.fn().mockReturnValue(execMock),
   };
 
+  const selectMock = {
+    select: jest.fn().mockReturnValue(leanMock),
+  };
+
   const mockUserInstance = {
     _id: 'test-user-id',
     email: 'test@test.com',
@@ -36,9 +40,9 @@ describe('UsersService', () => {
   };
 
   const mockUserModel = jest.fn(() => mockUserInstance) as any;
-  mockUserModel.findById = jest.fn().mockReturnValue(leanMock);
-  mockUserModel.findOne = jest.fn().mockReturnValue(leanMock);
-  mockUserModel.findByIdAndUpdate = jest.fn().mockReturnValue(leanMock);
+  mockUserModel.findById = jest.fn().mockReturnValue(selectMock);
+  mockUserModel.findOne = jest.fn().mockReturnValue(selectMock);
+  mockUserModel.findByIdAndUpdate = jest.fn().mockReturnValue(selectMock);
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

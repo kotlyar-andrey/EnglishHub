@@ -25,6 +25,10 @@ export class UsersService {
       .exec();
   }
 
+  findOneByEmailWithPassword(email: string): Promise<User | null> {
+    return this.userModel.findOne({ email }).lean().exec();
+  }
+
   async createByEmailAndPassword(createUserDto: CreateUserDto): Promise<User> {
     const existingUser = await this.findOneByEmail(createUserDto.email);
     if (existingUser) {

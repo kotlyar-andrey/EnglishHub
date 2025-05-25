@@ -28,6 +28,7 @@ describe('AuthService', () => {
   const mockUserService = {
     createByEmailAndPassword: jest.fn(),
     findOneByEmail: jest.fn(),
+    findOneByEmailWithPassword: jest.fn(),
   };
 
   const mockJestService = {
@@ -125,7 +126,7 @@ describe('AuthService', () => {
     };
 
     it('should login a user', async () => {
-      mockUserService.findOneByEmail.mockResolvedValue({
+      mockUserService.findOneByEmailWithPassword.mockResolvedValue({
         email: 'test@test.com',
       });
       bcrypt.compare.mockReturnValue(true);
@@ -138,7 +139,7 @@ describe('AuthService', () => {
     });
 
     it('should throw UnauthorizedException when email is incorrect', async () => {
-      mockUserService.findOneByEmail.mockRejectedValue(
+      mockUserService.findOneByEmailWithPassword.mockRejectedValue(
         new UnauthorizedException(),
       );
 
@@ -148,7 +149,7 @@ describe('AuthService', () => {
     });
 
     it('should throw UnauthorizedException when password is incorrect', async () => {
-      mockUserService.findOneByEmail.mockResolvedValue({
+      mockUserService.findOneByEmailWithPassword.mockResolvedValue({
         email: 'test@test.com',
       });
       bcrypt.compare.mockReturnValue(false);
